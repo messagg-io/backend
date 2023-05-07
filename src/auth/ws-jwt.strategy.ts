@@ -17,7 +17,7 @@ export class WsJwtStrategy extends PassportStrategy(Strategy, 'wsjwt') {
 
   public async validate(payload: any) {
     const { username } = payload;
-    if (await this.usersService.findOne(username)) {
+    if (await this.usersService.findOneWithPass(username)) {
       return { userId: payload.sub, username: payload.username };
     } else {
       throw new WsException('Unauthorized access');
