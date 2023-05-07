@@ -1,4 +1,5 @@
 import { JwtStrategy } from '@app/auth/jwt.strategy';
+import { WsJwtStrategy } from '@app/auth/ws-jwt.strategy';
 import { UsersModule } from '@app/users/users.module';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
@@ -18,7 +19,7 @@ import { LocalStrategy } from './local.strategy';
     PassportModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  providers: [AuthService, LocalStrategy, JwtStrategy, WsJwtStrategy],
   exports: [LocalStrategy, JwtStrategy, AuthService],
 })
 export class AuthModule {
