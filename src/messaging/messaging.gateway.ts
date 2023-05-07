@@ -22,10 +22,30 @@ export class MessagingGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage('messageToServer')
-  handleEvent(
-    @MessageBody() data: string,
-    @ConnectedSocket() client: any,
+  handleMessage(
+    client: Socket,
+    payload: any,
   ) {
-    this.server.emit('messageToClient', { data });
+    this.server.to(payload.chatId).emit('messageToClient', { payload });
+  }
+
+  @SubscribeMessage('joinRoom')
+  handleJoinRoom(
+    client: Socket,
+    payload: any,
+  ) {
+    const user = (client.handshake as any).user;
+    client.join(payload.chatId);
+    this.server.emit(`joinRoom|${user.userId}`, payload.chatId);
+  }
+
+  @SubscribeMessage('leaveRoom')
+  handleLeaveRoom(
+    client: Socket,
+    payload: any,
+  ) {
+    const user = (client.handshake as any).user;
+    client.leave(payload.chatId);
+    this.server.emit(`leaveRoom|${user.userId}`, payload.chatId);
   }
 }
