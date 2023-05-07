@@ -6,17 +6,17 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class UsersService {
   private readonly _users: any[] = [
     {
-      userId: 1,
+      id: 1,
       username: 'john',
       password: 'changeme',
     },
     {
-      userId: 2,
+      id: 2,
       username: 'milani',
       password: 'changeme',
     },
     {
-      userId: 3,
+      id: 3,
       username: 'redrenjer',
       password: 'changeme',
     },
