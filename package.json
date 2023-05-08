@@ -70,6 +70,10 @@
       "json",
       "ts"
     ],
+    "moduleNameMapper": {
+      "^@app/(.*)$": "<rootDir>/../src/$1",
+      "^@interfaces/(.*)$": "<rootDir>/../src/common/interfaces/$1"
+    },
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
