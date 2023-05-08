@@ -11,7 +11,6 @@ export class MessagingService {
 
   public getUserByHandshake(handshake: any) {
     const token = handshake.url.split('?')[1].split('bearerToken=')[1].split('&')[0];
-    console.log('token', token);
 
     return this.authService.getPayload(token);
   }
