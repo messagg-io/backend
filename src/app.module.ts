@@ -4,6 +4,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MessagingModule } from './messaging/messaging.module';
+import { ChatsModule } from './chats/chats.module';
 import * as process from 'process';
 
 @Module({
@@ -16,6 +17,7 @@ import * as process from 'process';
     UsersModule,
     AuthModule,
     MessagingModule,
+    ChatsModule,
   ],
   controllers: [],
   providers: [],

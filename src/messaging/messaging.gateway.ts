@@ -1,10 +1,11 @@
 import { WsAuthGuard } from '@app/auth/ws-auth.guard';
+import { ChatsService } from '@app/chats/chats.service';
+import { JoinRoomDto } from '@app/messaging/dto/join-room.dto';
+import { LeaveRoomDto } from '@app/messaging/dto/leave-room.dto';
 import { UseGuards } from '@nestjs/common';
 import {
   WebSocketGateway,
   SubscribeMessage,
-  MessageBody,
-  ConnectedSocket,
   OnGatewayConnection, WebSocketServer
 } from '@nestjs/websockets';
 import { MessagingService } from './messaging.service';
@@ -15,7 +16,10 @@ import { Server, Socket } from 'socket.io';
 export class MessagingGateway implements OnGatewayConnection {
   @WebSocketServer() server: Server;
 
-  constructor(private readonly messagingService: MessagingService) {}
+  constructor(
+    private readonly chatsService: ChatsService,
+    private readonly messagingService: MessagingService,
+  ) {}
 
   public handleConnection(client: any, ...args: any[]): any {
     return { client, args };
@@ -30,21 +34,23 @@ export class MessagingGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage('joinRoom')
-  handleJoinRoom(
+  async handleJoinRoom(
     client: Socket,
-    payload: any,
+    payload: JoinRoomDto,
   ) {
     const user = (client.handshake as any).user;
+    await this.chatsService.addUser(payload.chatId, user.userId);
     client.join(payload.chatId);
     this.server.emit(`joinRoom|${user.userId}`, payload.chatId);
   }
 
   @SubscribeMessage('leaveRoom')
-  handleLeaveRoom(
+  async handleLeaveRoom(
     client: Socket,
-    payload: any,
+    payload: LeaveRoomDto,
   ) {
     const user = (client.handshake as any).user;
+    await this.chatsService.removeUser(payload.chatId, user.userId);
     client.leave(payload.chatId);
     this.server.emit(`leaveRoom|${user.userId}`, payload.chatId);
   }
