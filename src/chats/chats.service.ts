@@ -23,6 +23,13 @@ export class ChatsService {
       .exec();
   }
 
+  public async findOne(chatId: string): Promise<Chat | null> {
+    return await this.chatsModel
+      .findById(chatId)
+      .populate('users')
+      .exec();
+  }
+
   public async addUser(chatId: string, userId: string) {
     return await this.chatsModel.findByIdAndUpdate(
       chatId,
@@ -37,5 +44,15 @@ export class ChatsService {
       { $pull: { users: userId } },
       { new: true }
     ).exec();
+  }
+
+  public async checkUser(chatId: string, userId: string) {
+    const chatObj = await this.findOne(chatId);
+
+    return !(!chatObj || !chatObj.users.find((user) => String(user._id) === userId));
+  }
+
+  public async findAllUserChats(userId: string): Promise<Chat[]> {
+    return await this.chatsModel.find({ users: userId }).exec()
   }
 }

@@ -6,7 +6,7 @@ import { UseGuards } from '@nestjs/common';
 import {
   WebSocketGateway,
   SubscribeMessage,
-  OnGatewayConnection, WebSocketServer
+  OnGatewayConnection, WebSocketServer, WsException
 } from '@nestjs/websockets';
 import { MessagingService } from './messaging.service';
 import { Server, Socket } from 'socket.io';
@@ -21,15 +21,30 @@ export class MessagingGateway implements OnGatewayConnection {
     private readonly messagingService: MessagingService,
   ) {}
 
-  public handleConnection(client: any, ...args: any[]): any {
-    return { client, args };
+  public async handleConnection(client: Socket) {
+    const user = this.messagingService.getUserByHandshake(client.handshake) as any;
+    const userChats = await this.chatsService.findAllUserChats(user?.userId);
+
+    if (userChats?.length <= 0) {
+      return;
+    }
+
+    for (const chat of userChats) {
+      client.join(String(chat._id));
+    }
   }
 
   @SubscribeMessage('messageToServer')
-  handleMessage(
+  async handleMessage(
     client: Socket,
     payload: any,
   ) {
+    const user = (client.handshake as any).user;
+
+    if (!await this.chatsService.checkUser(payload.chatId, user.userId)) {
+      throw new WsException('You are not in this chat');
+    }
+
     this.server.to(payload.chatId).emit('messageToClient', { payload });
   }
 

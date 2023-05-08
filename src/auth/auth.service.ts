@@ -40,4 +40,9 @@ export class AuthService {
   public async signup(signupDto: SignupDto) {
     return await this.usersService.create(signupDto);
   }
+
+  public getPayload(accessToken: string) {
+    const payload = this.jwtService.decode(accessToken) as any;
+    return { userId: payload.sub, username: payload.username }
+  }
 }
