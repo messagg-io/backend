@@ -1,8 +1,8 @@
-import { CreateChatDto } from '@app/chats/dto/create-chat.dto';
-import { Chat } from '@app/chats/entities/chat.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { CreateChatDto } from './dto';
+import { Chat } from './entities';
 
 @Injectable()
 export class ChatsService {
@@ -12,7 +12,7 @@ export class ChatsService {
   ) {
   }
 
-  public async create(createChatDto: CreateChatDto) {
+  public async create(createChatDto: CreateChatDto): Promise<Chat> {
     return await new this.chatsModel(createChatDto).save();
   }
 
@@ -30,7 +30,7 @@ export class ChatsService {
       .exec();
   }
 
-  public async addUser(chatId: string, userId: string) {
+  public async addUser(chatId: string, userId: string): Promise<Chat> {
     return await this.chatsModel.findByIdAndUpdate(
       chatId,
       { $addToSet: { users: userId } },
@@ -38,7 +38,7 @@ export class ChatsService {
     ).exec();
   }
 
-  public async removeUser(chatId: string, userId: string) {
+  public async removeUser(chatId: string, userId: string): Promise<Chat> {
     return await this.chatsModel.findByIdAndUpdate(
       chatId,
       { $pull: { users: userId } },
@@ -46,13 +46,13 @@ export class ChatsService {
     ).exec();
   }
 
-  public async checkUser(chatId: string, userId: string) {
+  public async checkUserInChat(chatId: string, userId: string): Promise<boolean> {
     const chatObj = await this.findOne(chatId);
 
     return !(!chatObj || !chatObj.users.find((user) => String(user._id) === userId));
   }
 
   public async findAllUserChats(userId: string): Promise<Chat[]> {
-    return await this.chatsModel.find({ users: userId }).exec()
+    return await this.chatsModel.find({ users: userId }).exec();
   }
 }

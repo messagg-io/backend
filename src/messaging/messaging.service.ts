@@ -1,5 +1,8 @@
 import { AuthService } from '@app/auth/auth.service';
+import { IJwtPayload } from '@interfaces/auth';
+import { IHandshake } from '@interfaces/ws';
 import { Injectable } from '@nestjs/common';
+import { Socket } from 'socket.io';
 
 @Injectable()
 export class MessagingService {
@@ -16,6 +19,10 @@ export class MessagingService {
     } catch (e) {
       return null;
     }
+  }
+
+  public getUserFromSocket(client: Socket): IJwtPayload {
+    return (client.handshake as IHandshake).user;
   }
 
 }

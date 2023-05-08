@@ -1,5 +1,3 @@
-import { JwtStrategy } from '@app/auth/jwt.strategy';
-import { WsJwtStrategy } from '@app/auth/ws-jwt.strategy';
 import { UsersModule } from '@app/users/users.module';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
@@ -7,7 +5,9 @@ import { PassportModule } from '@nestjs/passport';
 import * as process from 'process';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { JwtStrategy } from './jwt.strategy';
 import { LocalStrategy } from './local.strategy';
+import { WsJwtStrategy } from './ws-jwt.strategy';
 
 @Module({
   imports: [

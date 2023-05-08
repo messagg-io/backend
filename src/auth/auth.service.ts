@@ -1,9 +1,12 @@
+import { User } from '@app/users/entities';
 import { UsersService } from '@app/users/users.service';
+import { IJwtPayload } from '@interfaces/auth';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import * as process from 'process';
-import { SignupDto } from './dto/signup.dto';
+import { SignupDto } from './dto';
+import { IRawJwtPayload } from './interfaces';
 
 @Injectable()
 export class AuthService {
@@ -13,7 +16,7 @@ export class AuthService {
   ) {
   }
 
-  public async validateUser(username: string, pass: string) {
+  public async validateUser(username: string, pass: string): Promise<User | null> {
     const user = await this.usersService.findOneWithPass(username);
     if (user && await bcrypt.compare(pass, user.password)) {
       delete user.password;
@@ -23,12 +26,12 @@ export class AuthService {
     return null;
   }
 
-  public async login(user?: any) {
+  public async login(user?: User) {
     if (!user) {
       throw new HttpException('No user in request', HttpStatus.UNAUTHORIZED);
     }
 
-    const payload = { username: user.username, sub: user._id };
+    const payload = { username: user.username, sub: String(user._id) };
 
     return {
       accessToken: this.jwtService.sign(payload, {
@@ -41,8 +44,8 @@ export class AuthService {
     return await this.usersService.create(signupDto);
   }
 
-  public getPayload(accessToken: string) {
-    const payload = this.jwtService.decode(accessToken) as any;
-    return { userId: payload.sub, username: payload.username }
+  public getPayload(accessToken: string): IJwtPayload {
+    const payload = this.jwtService.decode(accessToken) as IRawJwtPayload;
+    return { userId: payload.sub, username: payload.username };
   }
 }

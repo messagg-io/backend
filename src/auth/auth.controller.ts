@@ -1,6 +1,7 @@
+import { User } from '@app/users/entities';
 import { Body, Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { SignupDto } from './dto/signup.dto';
+import { SignupDto } from './dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { LocalAuthGuard } from './local-auth.guard';
 
@@ -12,7 +13,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   public async login(@Request() req: Express.Request) {
-    return await this.authService.login(req.user);
+    return await this.authService.login(req.user as User);
   }
 
   @Post('sign-up')

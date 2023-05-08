@@ -1,7 +1,5 @@
 import { WsAuthGuard } from '@app/auth/ws-auth.guard';
 import { ChatsService } from '@app/chats/chats.service';
-import { JoinRoomDto } from '@app/messaging/dto/join-room.dto';
-import { LeaveRoomDto } from '@app/messaging/dto/leave-room.dto';
 import { Logger, UseGuards } from '@nestjs/common';
 import {
   OnGatewayConnection,
@@ -12,6 +10,7 @@ import {
   WsException
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { JoinRoomDto, LeaveRoomDto, MessageToServerDto } from './dto';
 import { MessagingService } from './messaging.service';
 
 @UseGuards(WsAuthGuard)
@@ -63,11 +62,11 @@ export class MessagingGateway implements OnGatewayConnection, OnGatewayDisconnec
   @SubscribeMessage('messageToServer')
   async handleMessage(
     client: Socket,
-    payload: any,
+    payload: MessageToServerDto,
   ) {
-    const user = (client.handshake as any).user;
+    const user = this.messagingService.getUserFromSocket(client);
 
-    if (!await this.chatsService.checkUser(payload.chatId, user.userId)) {
+    if (!await this.chatsService.checkUserInChat(payload.chatId, user.userId)) {
       throw new WsException('You are not in this chat');
     }
 
@@ -79,7 +78,7 @@ export class MessagingGateway implements OnGatewayConnection, OnGatewayDisconnec
     client: Socket,
     payload: JoinRoomDto,
   ) {
-    const user = (client.handshake as any).user;
+    const user = this.messagingService.getUserFromSocket(client);
 
     await this.chatsService.addUser(payload.chatId, user.userId);
     client.join(payload.chatId);
@@ -94,7 +93,7 @@ export class MessagingGateway implements OnGatewayConnection, OnGatewayDisconnec
     client: Socket,
     payload: LeaveRoomDto,
   ) {
-    const user = (client.handshake as any).user;
+    const user = this.messagingService.getUserFromSocket(client);
 
     await this.chatsService.removeUser(payload.chatId, user.userId);
     client.leave(payload.chatId);

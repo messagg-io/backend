@@ -1,6 +1,6 @@
 import { JwtAuthGuard } from '@app/auth/jwt-auth.guard';
-import { ChatsService } from '@app/chats/chats.service';
-import { CreateChatDto } from '@app/chats/dto/create-chat.dto';
+import { ChatsService } from './chats.service';
+import { CreateChatDto } from './dto';
 import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 
 @UseGuards(JwtAuthGuard)
@@ -14,8 +14,8 @@ export class ChatsController {
   }
 
   @Get(':id')
-  findOne(@Query('id') id: string) {
-
+  public async findOne(@Query('id') id: string) {
+    return this.chatsService.findOne(id);
   }
 
   @Post()

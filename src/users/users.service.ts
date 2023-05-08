@@ -1,8 +1,8 @@
-import { User } from '@app/users/entities/user.entity';
+import { CreateUserDto } from '@app/users/dto';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CreateUserDto } from './dto/create-user.dto';
+import { User } from './entities';
 
 type UserWithoutPass = Omit<User, 'password'>;
 
@@ -31,8 +31,8 @@ export class UsersService {
 
   public async findOne(username: string): Promise<UserWithoutPass | null> {
     return await this.userModel.findOne({
-      username
-    })
+        username
+      })
       .exec();
   }
 
