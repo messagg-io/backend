@@ -1,7 +1,8 @@
 import { JwtAuthGuard } from '@app/auth/jwt-auth.guard';
+import { IJwtPayload } from '@interfaces/auth';
 import { ChatsService } from './chats.service';
 import { CreateChatDto } from './dto';
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
 
 @UseGuards(JwtAuthGuard)
 @Controller('chats')
@@ -11,6 +12,12 @@ export class ChatsController {
   @Get()
   public async findAll() {
     return this.chatsService.findAll();
+  }
+
+  @Get('user')
+  public async findAllUserChats(@Req() req: Express.Request) {
+    const user = req.user as IJwtPayload;
+    return this.chatsService.findAllUserChats(user.userId);
   }
 
   @Get(':id')
